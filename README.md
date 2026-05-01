@@ -25,3 +25,6 @@ Users can explore election steps or ask questions through the chatbot.
 ## Assumptions
 - Users are first-time voters
 - Users need simple explanations
+- 
+## Google Services Used
+- Google Antigravity for app development and AI interaction
