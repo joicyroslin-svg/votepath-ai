@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, User } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, Loader } from 'lucide-react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import './Chatbot.css';
 
 const initialMessages = [
@@ -20,6 +21,7 @@ const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState(initialMessages);
   const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -27,12 +29,18 @@ const Chatbot = () => {
   };
 
   useEffect(() => {
+    const handleOpenChatbot = () => setIsOpen(true);
+    window.addEventListener('open-chatbot', handleOpenChatbot);
+    return () => window.removeEventListener('open-chatbot', handleOpenChatbot);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       scrollToBottom();
     }
   }, [messages, isOpen]);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
@@ -44,25 +52,58 @@ const Chatbot = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
+    setIsLoading(true);
 
-    // Mock AI response delay
-    setTimeout(() => {
-      let botResponse = mockResponses.default;
-      const lowerInput = userMessage.text.toLowerCase();
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+    if (!apiKey) {
+      // Mock AI response fallback
+      setTimeout(() => {
+        let botResponse = mockResponses.default;
+        const lowerInput = userMessage.text.toLowerCase();
+        
+        if (lowerInput.includes('register')) botResponse = mockResponses.register;
+        else if (lowerInput.includes('where') || lowerInput.includes('place')) botResponse = mockResponses.where;
+        else if (lowerInput.includes('id') || lowerInput.includes('identification')) botResponse = mockResponses.id;
+        else if (lowerInput.includes('absentee') || lowerInput.includes('mail')) botResponse = mockResponses.absentee;
+        else if (lowerInput.includes('hello')) botResponse = mockResponses.hello;
+        else if (lowerInput.includes('hi')) botResponse = mockResponses.hi;
+
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          type: 'bot',
+          text: botResponse
+        }]);
+        setIsLoading(false);
+      }, 1000);
+      return;
+    }
+
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        systemInstruction: "You are VotePath Assistant. You help first-time voters understand the election process. Use simple, beginner-friendly language. Keep answers short and avoid political bias."
+      });
       
-      if (lowerInput.includes('register')) botResponse = mockResponses.register;
-      else if (lowerInput.includes('where') || lowerInput.includes('place')) botResponse = mockResponses.where;
-      else if (lowerInput.includes('id') || lowerInput.includes('identification')) botResponse = mockResponses.id;
-      else if (lowerInput.includes('absentee') || lowerInput.includes('mail')) botResponse = mockResponses.absentee;
-      else if (lowerInput.includes('hello')) botResponse = mockResponses.hello;
-      else if (lowerInput.includes('hi')) botResponse = mockResponses.hi;
-
+      const result = await model.generateContent(userMessage.text);
+      const response = await result.response;
+      
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         type: 'bot',
-        text: botResponse
+        text: response.text()
       }]);
-    }, 1000);
+    } catch (error) {
+      console.error('Gemini API Error:', error);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: "Oops! I'm having trouble connecting to my AI brain. Please check your API key."
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -113,6 +154,14 @@ const Chatbot = () => {
               )}
             </div>
           ))}
+          {isLoading && (
+            <div className="message-wrapper bot">
+              <div className="avatar bot"><Bot size={16} /></div>
+              <div className="message-bubble bot" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Loader size={16} className="animate-spin" />
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
         

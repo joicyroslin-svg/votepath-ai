@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Timeline from './components/Timeline';
@@ -7,7 +7,14 @@ import Chatbot from './components/Chatbot';
 import './App.css';
 
 function App() {
-  const [isSimpleMode, setIsSimpleMode] = useState(false);
+  const [isSimpleMode, setIsSimpleMode] = useState(() => {
+    const saved = localStorage.getItem('votePath_isSimpleMode');
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('votePath_isSimpleMode', JSON.stringify(isSimpleMode));
+  }, [isSimpleMode]);
 
   return (
     <div className="app-container">

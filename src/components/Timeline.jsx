@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserPlus, FileText, Megaphone, Vote, Calculator, Award, ChevronRight } from 'lucide-react';
+import { UserPlus, FileText, Megaphone, Vote, Calculator, Award, ChevronRight, Volume2 } from 'lucide-react';
 import './Timeline.css';
 
 const steps = [
@@ -33,7 +33,7 @@ const steps = [
   {
     id: 4,
     icon: Vote,
-    title: { standard: 'Voting Day', simple: 'Election Day' },
+    title: { standard: 'Voting', simple: 'Election Day' },
     desc: {
       standard: 'Registered voters cast their ballots at designated polling stations or via mail.',
       simple: 'The day you go and make your choice.'
@@ -61,6 +61,14 @@ const steps = [
 
 const Timeline = ({ isSimpleMode }) => {
   const [activeStep, setActiveStep] = useState(1);
+
+  const speak = (text) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const msg = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(msg);
+    }
+  };
 
   return (
     <section className="timeline-section animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -101,9 +109,18 @@ const Timeline = ({ isSimpleMode }) => {
           {steps.map(step => (
             step.id === activeStep && (
               <div key={step.id} className="step-details animate-fade-in">
-                <div className="step-header">
-                  <div className="step-number">Step {step.id}</div>
-                  <h4>{isSimpleMode ? step.title.simple : step.title.standard}</h4>
+                <div className="step-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <div className="step-number">Step {step.id}</div>
+                    <h4>{isSimpleMode ? step.title.simple : step.title.standard}</h4>
+                  </div>
+                  <button 
+                    className="speak-btn" 
+                    onClick={() => speak(isSimpleMode ? step.desc.simple : step.desc.standard)}
+                    aria-label="Read description aloud"
+                  >
+                    <Volume2 size={20} />
+                  </button>
                 </div>
                 <p>{isSimpleMode ? step.desc.simple : step.desc.standard}</p>
                 

@@ -45,16 +45,16 @@
 }
 
 .step-icon-wrapper {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background-color: var(--bg-card);
-  border: 2px solid var(--border);
+  background-color: white;
+  border: 2px solid transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
 }
 
@@ -116,11 +116,18 @@
 
 .timeline-content-card {
   background-color: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-lg);
-  padding: 2rem;
+  padding: 2.5rem;
   box-shadow: var(--shadow-md);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   min-height: 200px;
+  transition: all 0.4s ease;
+}
+
+.timeline-content-card:hover {
+  box-shadow: var(--shadow-lg);
 }
 
 .step-header {

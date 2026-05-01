@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { CheckSquare, Square } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckSquare, Square, Volume2, Award } from 'lucide-react';
 import './Checklist.css';
 
 const tasks = [
@@ -46,7 +46,22 @@ const tasks = [
 ];
 
 const Checklist = ({ isSimpleMode }) => {
-  const [completed, setCompleted] = useState([]);
+  const [completed, setCompleted] = useState(() => {
+    const saved = localStorage.getItem('votePath_checklist');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('votePath_checklist', JSON.stringify(completed));
+  }, [completed]);
+
+  const speak = (text) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const msg = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(msg);
+    }
+  };
 
   const toggleTask = (id) => {
     if (completed.includes(id)) {
@@ -93,10 +108,22 @@ const Checklist = ({ isSimpleMode }) => {
                 )}
               </div>
               <div className="task-content">
-                <h4 className="task-title">
-                  {isSimpleMode ? task.title.simple : task.title.standard}
-                </h4>
-                <p className="task-desc">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h4 className="task-title" style={{ margin: 0 }}>
+                    {isSimpleMode ? task.title.simple : task.title.standard}
+                  </h4>
+                  <button 
+                    className="speak-btn" 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      speak(isSimpleMode ? task.desc.simple : task.desc.standard); 
+                    }}
+                    aria-label="Read description aloud"
+                  >
+                    <Volume2 size={16} />
+                  </button>
+                </div>
+                <p className="task-desc" style={{ marginTop: '0.25rem' }}>
                   {isSimpleMode ? task.desc.simple : task.desc.standard}
                 </p>
               </div>
@@ -104,6 +131,23 @@ const Checklist = ({ isSimpleMode }) => {
           );
         })}
       </div>
+
+      {progress === 100 && (
+        <div className="badge-container animate-fade-in" style={{ marginTop: '2rem', textAlign: 'center' }}>
+          <div className="voter-badge">
+            <Award size={48} className="badge-icon" />
+            <h4>Certified Ready to Vote!</h4>
+            <p style={{ color: 'var(--text-muted)' }}>You have completed all the steps. Share this badge with your friends!</p>
+            <button 
+              className="hero-btn primary-btn" 
+              style={{ marginTop: '1rem' }} 
+              onClick={() => alert("Badge shared! (Demo)")}
+            >
+              Share Badge
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
