@@ -1,16 +1,27 @@
-# React + Vite
+# VotePath AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Problem
+Many people find the election process confusing and difficult to understand.
 
-Currently, two official plugins are available:
+## Solution
+VotePath AI is an interactive assistant that simplifies election steps using AI and a visual timeline.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+- Election timeline (Registration → Results)
+- AI chatbot for questions
+- First-time voter checklist
 
-## React Compiler
+## Approach
+The app uses structured UI and AI prompts to explain election processes in simple language.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## How it works
+Users can explore election steps or ask questions through the chatbot.
 
-## Expanding the ESLint configuration
+## Tech Stack
+- Google Antigravity
+- React
+- AI prompting
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Assumptions
+- Users are first-time voters
+- Users need simple explanations
